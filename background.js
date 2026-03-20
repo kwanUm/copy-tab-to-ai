@@ -36,10 +36,10 @@ async function handleExtraction(tabId, tabUrl) {
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "EXTRACT_AND_SEND") {
-    const { tabId, tabUrl, promptSuffix } = message;
-    LOG("EXTRACT_AND_SEND:", { tabId, tabUrl: tabUrl?.substring(0, 80), promptSuffix: promptSuffix?.substring(0, 60) });
-    // Store prompt suffix so it gets merged into pageData later
-    chrome.storage.local.set({ promptSuffix: promptSuffix || "" });
+    const { tabId, tabUrl, promptSuffix, targetUrl } = message;
+    LOG("EXTRACT_AND_SEND:", { tabId, tabUrl: tabUrl?.substring(0, 80), targetUrl, promptSuffix: promptSuffix?.substring(0, 60) });
+    // Store prompt suffix and target URL so they get merged into pageData later
+    chrome.storage.local.set({ promptSuffix: promptSuffix || "", targetUrl: targetUrl || "https://claude.ai/new" });
     handleExtraction(tabId, tabUrl).then(
       () => sendResponse({ ok: true }),
       (err) => { ERR("Extraction failed:", err); sendResponse({ ok: false, error: err.message }); }
@@ -73,10 +73,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "OPEN_CLAUDE_AND_PASTE") {
-    openClaudeAndPaste().then(
-      () => sendResponse({ ok: true }),
-      (err) => sendResponse({ ok: false, error: err.message })
-    );
+    chrome.storage.local.get("targetUrl").then(({ targetUrl }) => {
+      openTargetAndPaste(targetUrl || "https://claude.ai/new").then(
+        () => sendResponse({ ok: true }),
+        (err) => sendResponse({ ok: false, error: err.message })
+      );
+    });
     return true;
   }
 
@@ -206,7 +208,7 @@ async function handlePageData(pageData) {
   LOG(`After CORS resolution: ${pageData.imageItems.length} images with data`);
 
   // Merge prompt suffix from popup
-  const { promptSuffix = "" } = await chrome.storage.local.get("promptSuffix");
+  const { promptSuffix = "", targetUrl = "https://claude.ai/new" } = await chrome.storage.local.get(["promptSuffix", "targetUrl"]);
   if (promptSuffix) {
     pageData.promptSuffix = promptSuffix;
     LOG("Attached promptSuffix:", promptSuffix.substring(0, 60));
@@ -216,25 +218,26 @@ async function handlePageData(pageData) {
   await chrome.storage.local.set({ pageData });
   LOG("pageData stored to chrome.storage.local");
 
-  // Open Claude.ai and inject paste
-  return openClaudeAndPaste();
+  // Open target AI and inject paste
+  return openTargetAndPaste(targetUrl);
 }
 
-async function openClaudeAndPaste() {
-  const claudeTab = await chrome.tabs.create({ url: "https://claude.ai/new" });
+async function openTargetAndPaste(targetUrl) {
+  LOG("Opening target:", targetUrl);
+  const tab = await chrome.tabs.create({ url: targetUrl });
 
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
       chrome.tabs.onUpdated.removeListener(listener);
-      console.warn("Claude.ai tab load timed out, attempting injection anyway");
-      injectPasteScript(claudeTab.id).then(resolve);
+      console.warn("Target tab load timed out, attempting injection anyway");
+      injectPasteScript(tab.id).then(resolve);
     }, 30000);
 
     function listener(tabId, changeInfo) {
-      if (tabId === claudeTab.id && changeInfo.status === "complete") {
+      if (tabId === tab.id && changeInfo.status === "complete") {
         clearTimeout(timeout);
         chrome.tabs.onUpdated.removeListener(listener);
-        setTimeout(() => injectPasteScript(claudeTab.id).then(resolve), 3000);
+        setTimeout(() => injectPasteScript(tab.id).then(resolve), 3000);
       }
     }
 

@@ -10,7 +10,6 @@
     "unlimitedStorage"
   ],
   "host_permissions": [
-    "https://claude.ai/*",
     "<all_urls>"
   ],
   "background": {

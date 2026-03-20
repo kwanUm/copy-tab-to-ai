@@ -366,7 +366,7 @@
     await sleep(3000);
     showStatus("PDF uploaded!", 1);
     setTimeout(hideStatus, 2000);
-    await chrome.storage.local.remove(["pageData", "promptSuffix"]);
+    await chrome.storage.local.remove(["pageData", "promptSuffix", "targetUrl"]);
     return;
   }
 
@@ -425,5 +425,5 @@
   setTimeout(hideStatus, 3000);
 
   // Clean up stored data
-  await chrome.storage.local.remove(["pageData", "promptSuffix"]);
+  await chrome.storage.local.remove(["pageData", "promptSuffix", "targetUrl"]);
 })();
