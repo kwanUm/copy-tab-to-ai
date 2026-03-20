@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Test Page - Copy Tab to AI</title>
+  <style>
+    body { font-family: Georgia, serif; max-width: 800px; margin: 0 auto; padding: 40px 20px; line-height: 1.6; color: #333; }
+    h1 { font-size: 2em; margin-bottom: 0.5em; }
+    h2 { font-size: 1.5em; margin-top: 1.5em; }
+    p { margin: 1em 0; }
+    img { max-width: 100%; height: auto; display: block; margin: 1em 0; }
+    .caption { font-style: italic; color: #666; font-size: 0.9em; }
+    blockquote { border-left: 4px solid #4759f7; padding-left: 16px; margin: 1em 0; color: #555; }
+    code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 0.9em; }
+    pre { background: #f4f4f4; padding: 16px; border-radius: 8px; overflow-x: auto; }
+    .hidden-section { display: none; }
+    .spacer { height: 800px; background: linear-gradient(to bottom, #f0f0ff, #fff); display: flex; align-items: center; justify-content: center; color: #999; }
+  </style>
+</head>
+<body>
+  <h1>The Science of Neural Networks</h1>
+  <p>This is a test page with text and images designed to verify the Copy Tab to AI extension.</p>
+
+  <h2>Section 1: Introduction</h2>
+  <p>Neural networks are computing systems inspired by biological neural networks. They learn to perform tasks by considering examples, generally without being programmed with task-specific rules.</p>
+
+  <img src="https://picsum.photos/id/1/600/400" alt="A landscape photograph used as test image 1" crossorigin="anonymous">
+  <p class="caption">Figure 1: A sample image for testing extraction.</p>
+
+  <h2>Section 2: Architecture</h2>
+  <p>A typical neural network consists of layers: an input layer, one or more hidden layers, and an output layer. Each connection between neurons has a weight that adjusts as learning proceeds.</p>
+
+  <blockquote>The key insight of deep learning is that these layers can learn increasingly abstract representations of the data.</blockquote>
+
+  <p>Here is some <code>inline code</code> to test extraction of code elements. Check this icon <img src="https://picsum.photos/id/10/40/40" alt="small inline icon" style="display:inline;vertical-align:middle;" crossorigin="anonymous"> embedded in the text flow.</p>
+
+  <pre><code>function activate(x) {
+  return Math.max(0, x); // ReLU activation
+}</code></pre>
+
+  <img src="https://picsum.photos/id/2/600/300" alt="A nature photograph used as test image 2" crossorigin="anonymous">
+
+  <div class="spacer">
+    <p>This content is far below the fold - testing full page extraction</p>
+  </div>
+
+  <h2>Section 3: Below the Fold Content</h2>
+  <p>This section is below the visible viewport on most screens. The extension should capture this content too, since we want the entire page, not just the visible portion.</p>
+
+  <img src="https://picsum.photos/id/3/600/400" alt="A third test image below the fold" crossorigin="anonymous">
+
+  <p>Key concepts in neural networks:</p>
+  <ul>
+    <li>Backpropagation - the algorithm for training neural networks</li>
+    <li>Gradient descent - optimization method for minimizing loss</li>
+    <li>Activation functions - non-linear transformations like ReLU, sigmoid</li>
+    <li>Loss functions - measure how well the model performs</li>
+  </ul>
+
+  <h2>Section 4: Final Notes</h2>
+  <p>This is the last section of the test page. If the extension captures this text, it means the full-page extraction is working correctly.</p>
+
+  <p><strong>End of test page.</strong></p>
+
+  <!-- Hidden content should NOT be extracted -->
+  <div class="hidden-section">
+    <p>This hidden text should not appear in the extraction.</p>
+  </div>
+</body>
+</html>
