@@ -39,8 +39,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     const { tabId, tabUrl, promptSuffix, targetUrl } = message;
     LOG("EXTRACT_AND_SEND:", { tabId, tabUrl: tabUrl?.substring(0, 80), targetUrl, promptSuffix: promptSuffix?.substring(0, 60) });
     // Store prompt suffix and target URL so they get merged into pageData later
-    chrome.storage.local.set({ promptSuffix: promptSuffix || "", targetUrl: targetUrl || "https://claude.ai/new" });
-    handleExtraction(tabId, tabUrl).then(
+    chrome.storage.local.set({ promptSuffix: promptSuffix || "", targetUrl: targetUrl || "https://claude.ai/new" }).then(() =>
+    handleExtraction(tabId, tabUrl)).then(
       () => sendResponse({ ok: true }),
       (err) => { ERR("Extraction failed:", err); sendResponse({ ok: false, error: err.message }); }
     );

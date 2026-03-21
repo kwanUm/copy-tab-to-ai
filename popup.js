@@ -31,7 +31,7 @@ function updateTargetUI() {
   targetBtns.forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.target === currentTarget);
   });
-  customUrlRow.style.display = currentTarget === "custom" ? "" : "none";
+  customUrlRow.style.display = currentTarget === "custom" ? "block" : "none";
 }
 
 async function setTarget(target) {
