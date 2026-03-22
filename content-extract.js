@@ -477,7 +477,7 @@
     });
 
     LOG("Message sent, opening Claude.ai...");
-    updateIndicator("Opening Claude.ai...", 1);
+    updateIndicator("Opening AI chat...", 1);
     setTimeout(removeIndicator, 2000);
   } catch (err) {
     ERR("Extraction error:", err);

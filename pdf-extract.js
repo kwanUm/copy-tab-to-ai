@@ -97,7 +97,7 @@
       },
     });
 
-    updateIndicator("Opening Claude.ai...", 0.9);
+    updateIndicator("Opening AI chat...", 0.9);
     await chrome.runtime.sendMessage({ type: "OPEN_CLAUDE_AND_PASTE" });
 
     updateIndicator("Done!", 1);
