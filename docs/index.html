@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy — Copy Tab to AI</title>
+<style>
+body { max-width: 680px; margin: 40px auto; padding: 0 20px; font-family: system-ui, sans-serif; line-height: 1.6; color: #333; }
+h1 { font-size: 24px; margin-bottom: 4px; }
+h2 { font-size: 18px; margin-top: 32px; }
+.date { color: #888; font-size: 14px; margin-bottom: 32px; }
+ul { padding-left: 24px; }
+li { margin-bottom: 8px; }
+code { background: #f4f4f4; padding: 2px 6px; border-radius: 3px; font-size: 14px; }
+a { color: #6c7cff; }
+</style>
+</head>
+<body>
+<h1>Privacy Policy</h1>
+<p class="date">Copy Tab to AI — Last updated March 22, 2026</p>
+
+<h2>Data Collection</h2>
+<p>Copy Tab to AI does <strong>not</strong> collect, transmit, or store any personal data. The extension operates entirely locally in your browser.</p>
+
+<h2>What the extension accesses</h2>
+<ul>
+<li><strong>Active tab content</strong> — When you click the extension and choose an action, it reads text and images from the current page. This data is stored temporarily in local browser storage (<code>chrome.storage.local</code>) and deleted immediately after pasting into the target AI chat.</li>
+<li><strong>Saved prompts</strong> — Your custom saved prompts are stored in <code>chrome.storage.sync</code> so they persist across sessions. No prompt data is sent to any external server.</li>
+<li><strong>Target AI preference</strong> — Your chosen AI target (Claude, ChatGPT, or custom URL) is stored in <code>chrome.storage.sync</code>.</li>
+</ul>
+
+<h2>Data sharing</h2>
+<p>No data is shared with the extension developer or any third party. Page content is sent only to the AI chat service you select (e.g., Claude.ai, ChatGPT), by opening it in a new browser tab — the same as if you copied and pasted manually.</p>
+
+<h2>Permissions</h2>
+<ul>
+<li><code>activeTab</code> / <code>scripting</code> — To read the current page and inject the paste script into the AI chat tab.</li>
+<li><code>storage</code> — To temporarily store extracted content and your preferences.</li>
+<li><code>&lt;all_urls&gt;</code> — To fetch images that are blocked by CORS policies. Content scripts cannot read cross-origin images via canvas, so the background service worker fetches them.</li>
+</ul>
+
+<h2>Contact</h2>
+<p>For questions about this policy, open an issue at <a href="https://github.com/kwanUm/copy-tab-to-ai/issues">github.com/kwanUm/copy-tab-to-ai</a>.</p>
+</body>
+</html>
