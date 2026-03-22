@@ -65,6 +65,9 @@ async function triggerExtraction(promptSuffix) {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!tab) return;
 
+  // Save as last prompt for shortcut replay
+  await chrome.storage.sync.set({ lastPromptSuffix: promptSuffix });
+
   await chrome.runtime.sendMessage({
     type: "EXTRACT_AND_SEND",
     tabId: tab.id,

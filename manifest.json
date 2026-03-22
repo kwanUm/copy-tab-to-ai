@@ -2,7 +2,15 @@
   "manifest_version": 3,
   "name": "Copy Tab to AI",
   "version": "1.0.0",
-  "description": "Copy all text and images from a page and paste them into Claude.ai",
+  "description": "Extract text and images from any page and paste into Claude, ChatGPT, or any AI",
+  "commands": {
+    "run-last-prompt": {
+      "suggested_key": {
+        "default": "Alt+Shift+S"
+      },
+      "description": "Run last used prompt on current page"
+    }
+  },
   "permissions": [
     "activeTab",
     "scripting",

@@ -8,6 +8,19 @@ function isPdfUrl(url) {
   return /\.pdf(\?|#|$)/i.test(url) || /\/pdf\//i.test(url);
 }
 
+// Keyboard shortcut: re-run last prompt
+chrome.commands.onCommand.addListener(async (command) => {
+  if (command !== "run-last-prompt") return;
+  const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!tab) return;
+  const { lastPromptSuffix = "", aiTarget = "claude", customUrl = "" } = await chrome.storage.sync.get(["lastPromptSuffix", "aiTarget", "customUrl"]);
+  const targets = { claude: "https://claude.ai/new", chatgpt: "https://chatgpt.com/" };
+  const targetUrl = aiTarget === "custom" ? (customUrl || targets.claude) : (targets[aiTarget] || targets.claude);
+  LOG("Shortcut triggered, last prompt:", lastPromptSuffix?.substring(0, 60));
+  await chrome.storage.local.set({ promptSuffix: lastPromptSuffix, targetUrl });
+  await handleExtraction(tab.id, tab.url);
+});
+
 // Inject extraction scripts into a tab
 async function handleExtraction(tabId, tabUrl) {
   let script;
