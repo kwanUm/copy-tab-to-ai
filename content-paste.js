@@ -260,6 +260,43 @@
   LOG("Editor found:", editor.className);
   await sleep(500);
 
+  // On Claude.ai, select Opus model if available
+  if (window.location.hostname === "claude.ai") {
+    try {
+      // Find the model selector button (contains model name like "Sonnet" or "Opus")
+      const modelBtns = [...document.querySelectorAll("button")].filter((btn) => {
+        const text = btn.textContent || "";
+        return text.includes("Sonnet") || text.includes("Opus") || text.includes("Haiku");
+      });
+      const modelBtn = modelBtns.find((btn) => btn.offsetParent !== null);
+      if (modelBtn && !modelBtn.textContent.includes("Opus")) {
+        LOG("Current model:", modelBtn.textContent.trim(), "— switching to Opus");
+        modelBtn.click();
+        await sleep(500);
+        // Find and click Opus option in the dropdown
+        const opusOption = [...document.querySelectorAll("[role='option'], [role='menuitem'], button, div")].find((el) => {
+          const text = el.textContent || "";
+          return text.includes("Opus") && el.offsetParent !== null && el.offsetHeight > 0 && el.offsetHeight < 100;
+        });
+        if (opusOption) {
+          opusOption.click();
+          LOG("Switched to Opus");
+          await sleep(500);
+        } else {
+          LOG("Opus option not found in dropdown, pressing Escape");
+          document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+          await sleep(200);
+        }
+      } else if (modelBtn) {
+        LOG("Already on Opus:", modelBtn.textContent.trim());
+      } else {
+        LOG("Model selector not found");
+      }
+    } catch (err) {
+      LOG("Model selection failed:", err.message);
+    }
+  }
+
   // Find or create file input for uploading files
   async function findFileInput() {
     // Check for existing file input
