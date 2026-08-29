@@ -66,11 +66,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       contentItems: message.data.content?.length,
       imageItems: message.data.imageItems?.length,
     });
+    // Acknowledge receipt immediately — the source page's "Sending..." indicator
+    // is only waiting to confirm the message arrived, not for the full
+    // fetch-images/open-tab/paste pipeline (which can take up to ~45s) to finish.
+    sendResponse({ ok: true });
     handlePageData(message.data).then(
-      () => { LOG("handlePageData complete"); sendResponse({ ok: true }); },
-      (err) => { ERR("handlePageData error:", err); sendResponse({ ok: false, error: err.message }); }
+      () => LOG("handlePageData complete"),
+      (err) => ERR("handlePageData error:", err)
     );
-    return true;
+    return false;
   }
 
   if (message.type === "FETCH_IMAGE") {

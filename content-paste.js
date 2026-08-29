@@ -7,9 +7,18 @@
 
   LOG("content-paste.js loaded");
 
-  const { pageData } = await chrome.runtime.sendMessage({
-    type: "GET_PAGE_DATA",
-  });
+  let pageData;
+  try {
+    ({ pageData } = await chrome.runtime.sendMessage({ type: "GET_PAGE_DATA" }));
+  } catch (err) {
+    // chrome.runtime is undefined/unreachable when the extension was reloaded
+    // after this script was injected — fail loudly instead of leaving the tab
+    // silently blank with no feedback at all.
+    ERR("Could not reach extension background (context invalidated?):", err.message);
+    showStatus("Extension was reloaded — please refresh this page and try again.", null);
+    setTimeout(hideStatus, 6000);
+    return;
+  }
   if (!pageData) {
     ERR("No page data found in storage");
     return;
@@ -37,7 +46,7 @@
       );
       for (const el of candidates) {
         // Must be visible and not a tiny element
-        if (el.offsetParent !== null && el.offsetHeight > 20) {
+        if (el.offsetParent !== null && el.offsetHeight >= 20) {
           return el;
         }
       }
@@ -249,7 +258,7 @@
 
   // Main
   showStatus("Waiting for editor...", 0);
-  const editor = await waitForEditor();
+  let editor = await waitForEditor();
   if (!editor) {
     ERR("Could not find editor after 20s");
     showStatus("Could not find editor. Please try refreshing the page.", null);
@@ -273,10 +282,20 @@
         LOG("Current model:", modelBtn.textContent.trim(), "— switching to Opus");
         modelBtn.click();
         await sleep(500);
-        // Find and click Opus option in the dropdown
-        const opusOption = [...document.querySelectorAll("[role='option'], [role='menuitem'], button, div")].find((el) => {
+        // Find and click the Opus option in the dropdown. Restrict to actual
+        // menu items (not any button/div on the page) and skip locked/disabled
+        // entries (e.g. an "Upgrade" upsell) — clicking those can navigate the
+        // tab away from the composer entirely and strand the paste flow.
+        const opusOption = [...document.querySelectorAll("[role='option'], [role='menuitem']")].find((el) => {
           const text = el.textContent || "";
-          return text.includes("Opus") && el.offsetParent !== null && el.offsetHeight > 0 && el.offsetHeight < 100;
+          return (
+            text.includes("Opus") &&
+            el.offsetParent !== null &&
+            el.offsetHeight > 0 &&
+            el.offsetHeight < 100 &&
+            el.getAttribute("aria-disabled") !== "true" &&
+            !el.closest("a[href]")
+          );
         });
         if (opusOption) {
           opusOption.click();
@@ -284,9 +303,10 @@
           await sleep(500);
         } else {
           LOG("Opus option not found in dropdown, pressing Escape");
-          document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
-          await sleep(200);
         }
+        // Close any leftover open menu regardless of outcome above
+        document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+        await sleep(200);
       } else if (modelBtn) {
         LOG("Already on Opus:", modelBtn.textContent.trim());
       } else {
@@ -294,6 +314,22 @@
       }
     } catch (err) {
       LOG("Model selection failed:", err.message);
+    }
+
+    // Guard: if the composer got unmounted (e.g. a click above navigated to an
+    // upgrade page or opened a modal that replaced it), re-wait for it instead
+    // of silently failing every step downstream.
+    if (!document.body.contains(editor) || editor.offsetParent === null) {
+      LOG("Editor lost after model selection, re-waiting...");
+      const recovered = await waitForEditor(5000);
+      if (recovered) {
+        editor = recovered;
+      } else {
+        ERR("Editor did not reappear after model selection");
+        showStatus("Lost the editor after selecting model. Please try again.", null);
+        setTimeout(hideStatus, 5000);
+        return;
+      }
     }
   }
 

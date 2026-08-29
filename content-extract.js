@@ -481,7 +481,13 @@
     setTimeout(removeIndicator, 2000);
   } catch (err) {
     ERR("Extraction error:", err);
-    updateIndicator(`Error: ${err.message}`, null);
+    // chrome.runtime goes undefined if the extension was reloaded while this
+    // script was already running — give a clear, actionable message instead
+    // of the raw TypeError.
+    const message = /reading 'sendMessage'/.test(err.message)
+      ? "Extension was reloaded — please refresh this page and try again."
+      : `Error: ${err.message}`;
+    updateIndicator(message, null);
     indicator.style.background = "#e74c3c";
     setTimeout(removeIndicator, 5000);
   }
